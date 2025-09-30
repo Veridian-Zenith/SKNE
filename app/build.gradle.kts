@@ -17,9 +17,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"af92d91a0293449199c5bd63739ba2d9\"")
+        buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"${System.getenv("SPOTIFY_CLIENT_ID") ?: System.getProperty("SPOTIFY_CLIENT_ID") ?: requireNotNull(null) { \"SPOTIFY_CLIENT_ID must be set as an environment variable or system property\" }}\"")
         buildConfigField("String", "SPOTIFY_REDIRECT_URI", "\"spotify-sdk://auth\"")
-        // Removed SPOTIFY_CLIENT_SECRET for security - handle on backend if needed
+        buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"${System.getenv("SPOTIFY_CLIENT_SECRET") ?: System.getProperty("SPOTIFY_CLIENT_SECRET") ?: requireNotNull(null) { \"SPOTIFY_CLIENT_SECRET must be set as an environment variable or system property\" }}\"")
     }
 
     buildTypes {
@@ -65,30 +65,30 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    // Retrofit (current version)
+    // Retrofit (latest stable version)
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
-    // Kotlin Coroutines (current version)
+    // Kotlin Coroutines (latest stable version)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
-    // Coil for image loading (stable version)
+    // Coil for image loading (latest stable version)
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     // Spotify App Remote (.aar - downloaded to libs/)
     implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
 
-    // Spotify Auth (stable public version)
-    implementation("com.spotify.android:auth:2.1.1")
+    // Spotify Auth (latest stable version)
+    implementation("com.spotify.android:auth:3.0.0")
 
     // Spotify Web API - Using Retrofit directly instead of wrapper
 
     // Gson for Spotify SDK serialization (required per tutorial)
     implementation("com.google.code.gson:gson:2.11.0")
 
-    // Navigation Compose (updated)
+    // Navigation Compose (latest stable version)
     implementation("androidx.navigation:navigation-compose:2.9.5")
 
-    // Google Fonts for Delius font (updated)
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.10.0-alpha04")
+    // Google Fonts for Delius font (latest stable version)
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.2")
 }
