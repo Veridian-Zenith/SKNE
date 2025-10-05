@@ -30,8 +30,12 @@ class SpotifyRepository(private val apiService: SpotifyApiService, private val a
             } else {
                 Result.failure(RuntimeException("Failed to get access token: ${response.errorBody()?.string()}"))
             }
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(RuntimeException("Unexpected error during authentication", e))
         }
     }
 
@@ -44,8 +48,12 @@ class SpotifyRepository(private val apiService: SpotifyApiService, private val a
             } else {
                 Result.failure(RuntimeException("Failed to fetch artist: ${response.errorBody()?.string()}"))
             }
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(RuntimeException("Unexpected error fetching artist", e))
         }
     }
 
@@ -58,8 +66,12 @@ class SpotifyRepository(private val apiService: SpotifyApiService, private val a
             } else {
                 Result.failure(RuntimeException("Failed to fetch top tracks: ${response.errorBody()?.string()}"))
             }
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(RuntimeException("Unexpected error fetching top tracks", e))
         }
     }
 
@@ -72,8 +84,12 @@ class SpotifyRepository(private val apiService: SpotifyApiService, private val a
             } else {
                 Result.failure(RuntimeException("Failed to fetch albums: ${response.errorBody()?.string()}"))
             }
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(RuntimeException("Unexpected error fetching albums", e))
         }
     }
 
@@ -89,8 +105,12 @@ class SpotifyRepository(private val apiService: SpotifyApiService, private val a
             } else {
                 Result.failure(RuntimeException("Failed to fetch liked songs: ${response.errorBody()?.string()}"))
             }
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Result.failure(e)
+        } catch (e: Exception) {
+            Result.failure(RuntimeException("Unexpected error fetching liked songs", e))
         }
     }
 }

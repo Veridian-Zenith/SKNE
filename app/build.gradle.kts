@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -17,9 +20,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"${System.getenv("SPOTIFY_CLIENT_ID") ?: System.getProperty("SPOTIFY_CLIENT_ID") ?: requireNotNull(null) { \"SPOTIFY_CLIENT_ID must be set as an environment variable or system property\" }}\"")
+        buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"${System.getenv("SPOTIFY_CLIENT_ID") ?: "your_client_id_here"}\"")
         buildConfigField("String", "SPOTIFY_REDIRECT_URI", "\"spotify-sdk://auth\"")
-        buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"${System.getenv("SPOTIFY_CLIENT_SECRET") ?: System.getProperty("SPOTIFY_CLIENT_SECRET") ?: requireNotNull(null) { \"SPOTIFY_CLIENT_SECRET must be set as an environment variable or system property\" }}\"")
+        buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"${System.getenv("SPOTIFY_CLIENT_SECRET") ?: "your_client_secret_here"}\"")
+        manifestPlaceholders["redirectSchemeName"] = "spotify-sdk"
+        manifestPlaceholders["redirectHostName"] = "auth"
+        manifestPlaceholders["redirectPathPattern"] = ".*"
     }
 
     buildTypes {
@@ -27,24 +33,22 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
     buildFeatures {
         compose = true
         buildConfig = true
     }
 }
-
-
 
 dependencies {
 
@@ -80,6 +84,9 @@ dependencies {
 
     // Spotify Auth (latest stable version)
     implementation("com.spotify.android:auth:3.0.0")
+
+    // OkHttp Logging Interceptor for network debugging
+    implementation(libs.okhttp.logging)
 
     // Spotify Web API - Using Retrofit directly instead of wrapper
 

@@ -16,7 +16,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Button(onClick = onLoginClick) {
             Text("Login with Spotify")

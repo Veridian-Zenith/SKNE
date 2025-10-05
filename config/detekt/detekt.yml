@@ -1,0 +1,59 @@
+# Detekt configuration file for SKNE Android project
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  active: true
+  CyclomaticComplexMethod:
+    threshold: 15
+
+coroutines:
+  active: true
+  InjectDispatcher:
+    active: true
+
+empty-blocks:
+  active: true
+  EmptyCatchBlock:
+    active: true
+
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: true
+
+naming:
+  active: true
+  ClassNaming:
+    active: true
+  FunctionNaming:
+    active: true
+  VariableNaming:
+    active: true
+
+performance:
+  active: true
+  ForEachOnRange:
+    active: true
+
+potential-bugs:
+  active: true
+  Deprecation:
+    active: true
+  EqualsWithHashCodeExist:
+    active: true
+
+style:
+  active: true
+  MaxLineLength:
+    maxLineLength: 120
+  UnusedImports:
+    active: true
+  WildcardImport:
+    active: true

@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+# Kotlin specific rules
+kotlin_imports_layout = ascii
+kotlin_function_signature_body_indent = body
+kotlin_multiline_expression_wrapping = normal
+
+# Disable some rules that conflict with Android development
+disabled_rules = import-ordering,filename
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2

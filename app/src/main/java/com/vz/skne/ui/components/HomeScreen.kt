@@ -5,7 +5,17 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,8 +25,19 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingContainer
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -47,28 +68,28 @@ fun HomeScreen(
     isConnecting: Boolean = false,
     connectionError: String? = null,
     onRetryConnection: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             // Connection status
             if (isConnecting) {
                 ConnectionStatusCard(
                     message = "Connecting to Spotify...",
-                    isError = false
+                    isError = false,
                 )
             } else if (connectionError != null) {
                 ConnectionStatusCard(
                     message = connectionError,
                     isError = true,
-                    onRetry = onRetryConnection
+                    onRetry = onRetryConnection,
                 )
             }
 
@@ -77,7 +98,7 @@ fun HomeScreen(
                 artistName = artistName,
                 artistId = artistId,
                 albumArtComposable = albumArtComposable,
-                navController = navController
+                navController = navController,
             )
             Spacer(modifier = Modifier.height(16.dp))
             LyricsPanel(lyricsContent = lyricsContent)
@@ -94,7 +115,7 @@ fun HomeScreen(
             onPreviousClick = onPreviousClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 120.dp)
+                .padding(bottom = 120.dp),
         )
         MiniPlayer(
             trackName = trackName,
@@ -105,7 +126,7 @@ fun HomeScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
         )
     }
 }
@@ -114,32 +135,33 @@ fun HomeScreen(
 private fun ConnectionStatusCard(
     message: String,
     isError: Boolean,
-    onRetry: (() -> Unit)? = null
+    onRetry: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     FloatingContainer(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             if (isError) {
                 Icon(
                     Icons.Default.Error,
                     contentDescription = "Error",
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             } else {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
+                    strokeWidth = 2.dp,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -147,7 +169,7 @@ private fun ConnectionStatusCard(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             )
 
             if (isError && onRetry != null) {
@@ -166,20 +188,21 @@ private fun AlbumArtDisplay(
     artistName: String,
     artistId: String?,
     albumArtComposable: @Composable () -> Unit,
-    navController: NavController
+    navController: NavController,
+    modifier: Modifier = Modifier,
 ) {
     FloatingContainer(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(250.dp)
-            .padding(top = 16.dp, bottom = 12.dp)
+            .padding(top = 16.dp, bottom = 12.dp),
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             albumArtComposable()
             Spacer(modifier = Modifier.height(8.dp))
@@ -191,7 +214,7 @@ private fun AlbumArtDisplay(
                     artistId?.let { id ->
                         navController.navigate("${AppRoutes.ARTIST_SCREEN}/$id")
                     }
-                }
+                },
             )
         }
     }
@@ -203,7 +226,7 @@ private fun LyricsPanel(lyricsContent: String) {
     var isLyricsPressed by remember { mutableStateOf(false) }
     val lyricsElevation by animateDpAsState(
         targetValue = if (isLyricsPressed) AppElevations.FloatingDock else AppElevations.SubtleShadow,
-        label = "LyricsElevationAnimation"
+        label = "LyricsElevationAnimation",
     )
 
     FloatingContainer(
@@ -212,14 +235,13 @@ private fun LyricsPanel(lyricsContent: String) {
             .height(180.dp)
             .padding(top = 16.dp, bottom = 12.dp)
             .clickable { isLyricsPressed = !isLyricsPressed },
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = lyricsElevation)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
             ) {
                 Text(lyricsContent, style = MaterialTheme.typography.bodyLarge)
             }
@@ -234,10 +256,10 @@ private fun LyricsPanel(lyricsContent: String) {
                             Brush.verticalGradient(
                                 listOf(
                                     MaterialTheme.colorScheme.surface,
-                                    Color.Transparent
-                                )
-                            )
-                        )
+                                    Color.Transparent,
+                                ),
+                            ),
+                        ),
                 )
                 Box(
                     modifier = Modifier
@@ -248,10 +270,10 @@ private fun LyricsPanel(lyricsContent: String) {
                             Brush.verticalGradient(
                                 listOf(
                                     Color.Transparent,
-                                    MaterialTheme.colorScheme.surface
-                                )
-                            )
-                        )
+                                    MaterialTheme.colorScheme.surface,
+                                ),
+                            ),
+                        ),
                 )
             }
         }
@@ -264,37 +286,37 @@ private fun PlaybackControls(
     onPlayPauseClick: () -> Unit,
     onNextClick: () -> Unit,
     onPreviousClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     FloatingContainer(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(100.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             var isPrevPressed by remember { mutableStateOf(false) }
             val prevScale by animateFloatAsState(
                 targetValue = if (isPrevPressed) 0.9f else 1.0f,
                 animationSpec = tween(durationMillis = 100),
-                label = "PrevScaleAnimation"
+                label = "PrevScaleAnimation",
             )
             IconButton(
                 onClick = {
                     onPreviousClick()
                     isPrevPressed = true
                 },
-                modifier = Modifier.graphicsLayer(scaleX = prevScale, scaleY = prevScale)
+                modifier = Modifier.graphicsLayer(scaleX = prevScale, scaleY = prevScale),
             ) {
                 Icon(
                     Icons.Default.SkipPrevious,
                     contentDescription = "Previous Track",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
             LaunchedEffect(isPrevPressed) {
@@ -307,7 +329,7 @@ private fun PlaybackControls(
             val playPauseScale by animateFloatAsState(
                 targetValue = if (isPlayPausePressed) 0.9f else 1.0f,
                 animationSpec = tween(durationMillis = 100),
-                label = "PlayPauseScaleAnimation"
+                label = "PlayPauseScaleAnimation",
             )
             IconButton(
                 onClick = {
@@ -316,13 +338,13 @@ private fun PlaybackControls(
                 },
                 modifier = Modifier.graphicsLayer(
                     scaleX = playPauseScale,
-                    scaleY = playPauseScale
-                )
+                    scaleY = playPauseScale,
+                ),
             ) {
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = if (isPlaying) "Pause" else "Play",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             LaunchedEffect(isPlayPausePressed) {
@@ -335,19 +357,19 @@ private fun PlaybackControls(
             val nextScale by animateFloatAsState(
                 targetValue = if (isNextPressed) 0.9f else 1.0f,
                 animationSpec = tween(durationMillis = 100),
-                label = "NextScaleAnimation"
+                label = "NextScaleAnimation",
             )
             IconButton(
                 onClick = {
                     onNextClick()
                     isNextPressed = true
                 },
-                modifier = Modifier.graphicsLayer(scaleX = nextScale, scaleY = nextScale)
+                modifier = Modifier.graphicsLayer(scaleX = nextScale, scaleY = nextScale),
             ) {
                 Icon(
                     Icons.Default.SkipNext,
                     contentDescription = "Next Track",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
             LaunchedEffect(isNextPressed) {
@@ -376,14 +398,14 @@ fun HomeScreenPreview() {
                 Box(
                     modifier = Modifier
                         .size(180.dp)
-                        .background(Color.Gray)
+                        .background(Color.Gray),
                 ) { Text("Art", modifier = Modifier.align(Alignment.Center)) }
             },
             lyricsContent = """
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             """.trimIndent(),
-            navController = rememberNavController()
+            navController = rememberNavController(),
         )
     }
 }

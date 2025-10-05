@@ -98,6 +98,9 @@ class MainViewModel(val spotifyRepository: SpotifyRepository) : ViewModel() {
                     _likedSongsError.value = exception.localizedMessage ?: "Failed to fetch liked songs"
                     Log.e("MainViewModel", "Failed to fetch liked songs", exception)
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Coroutine was cancelled, this is normal
+                Log.d("MainViewModel", "Liked songs fetch was cancelled", e)
             } catch (e: Exception) {
                 _likedSongsError.value = e.localizedMessage ?: "Failed to fetch liked songs"
                 Log.e("MainViewModel", "Failed to fetch liked songs", e)
@@ -122,57 +125,65 @@ class MainViewModel(val spotifyRepository: SpotifyRepository) : ViewModel() {
             .showAuthView(true)
             .build()
 
-        SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
-            override fun onConnected(remote: SpotifyAppRemote) {
-                spotifyAppRemote = remote
-                connectionAttempts = 0 // Reset connection attempts on success
-                _isConnecting.value = false
-                _connectionError.value = null
-                Log.d("MainViewModel", "Connected to Spotify successfully!")
+        SpotifyAppRemote.connect(
+            context,
+            connectionParams,
+            object : Connector.ConnectionListener {
+                override fun onConnected(remote: SpotifyAppRemote) {
+                    spotifyAppRemote = remote
+                    connectionAttempts = 0 // Reset connection attempts on success
+                    _isConnecting.value = false
+                    _connectionError.value = null
+                    Log.d("MainViewModel", "Connected to Spotify successfully!")
 
-                // Subscribe to player state with error handling
-                spotifyAppRemote?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
-                    try {
-                        _playerState.value = playerState
-                        _currentTrackName.value = playerState.track?.name ?: "No Track Playing"
-                        _currentArtistName.value = playerState.track?.artist?.name ?: "Unknown Artist"
-                        _currentArtistId.value = playerState.track?.artist?.id
-                        _isPlaying.value = !playerState.isPaused
-                        _currentAlbumArtUri.value = playerState.track?.imageUri?.raw
-                    } catch (e: Exception) {
-                        Log.e("MainViewModel", "Error updating player state", e)
-                    }
-                }?.setErrorCallback { error ->
-                    Log.e("MainViewModel", "Player state subscription error", error)
-                    _connectionError.value = "Player state error: ${error.message}"
-                }
-            }
-
-            override fun onFailure(throwable: Throwable) {
-                _isConnecting.value = false
-                val errorMessage = when {
-                    throwable.message?.contains("authentication failed", true) == true ->
-                        "Authentication failed. Please check your Spotify app permissions."
-                    throwable.message?.contains("no spotify app", true) == true ->
-                        "Spotify app not found. Please install the Spotify app."
-                    throwable.message?.contains("network", true) == true ->
-                        "Network error. Please check your internet connection."
-                    else -> "Connection failed: ${throwable.message}"
-                }
-
-                _connectionError.value = errorMessage
-                Log.e("MainViewModel", "Failed to connect to Spotify", throwable)
-
-                // Auto-retry logic for certain errors
-                if (connectionAttempts < maxConnectionAttempts &&
-                    throwable.message?.contains("network", true) == true) {
-                    viewModelScope.launch {
-                        delay(2000L) // Wait 2 seconds before retry
-                        retryConnection(context)
+                    // Subscribe to player state with error handling
+                    spotifyAppRemote?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
+                        try {
+                            _playerState.value = playerState
+                            _currentTrackName.value = playerState.track?.name ?: "No Track Playing"
+                            _currentArtistName.value = playerState.track?.artist?.name ?: "Unknown Artist"
+                            _currentArtistId.value = playerState.track?.artist?.uri?.substringAfterLast(":") ?: ""
+                            _isPlaying.value = !playerState.isPaused
+                            _currentAlbumArtUri.value = playerState.track?.imageUri?.raw
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            // Coroutine was cancelled, this is normal
+                            Log.d("MainViewModel", "Player state update was cancelled", e)
+                        } catch (e: Exception) {
+                            Log.e("MainViewModel", "Error updating player state", e)
+                        }
+                    }?.setErrorCallback { error ->
+                        Log.e("MainViewModel", "Player state subscription error", error)
+                        _connectionError.value = "Player state error: ${error.message}"
                     }
                 }
-            }
-        })
+
+                override fun onFailure(throwable: Throwable) {
+                    _isConnecting.value = false
+                    val errorMessage = when {
+                        throwable.message?.contains("authentication failed", true) == true ->
+                            "Authentication failed. Please check your Spotify app permissions."
+                        throwable.message?.contains("no spotify app", true) == true ->
+                            "Spotify app not found. Please install the Spotify app."
+                        throwable.message?.contains("network", true) == true ->
+                            "Network error. Please check your internet connection."
+                        else -> "Connection failed: ${throwable.message}"
+                    }
+
+                    _connectionError.value = errorMessage
+                    Log.e("MainViewModel", "Failed to connect to Spotify", throwable)
+
+                    // Auto-retry logic for certain errors
+                    if (connectionAttempts < maxConnectionAttempts &&
+                        throwable.message?.contains("network", true) == true
+                    ) {
+                        viewModelScope.launch {
+                            delay(2000L) // Wait 2 seconds before retry
+                            retryConnection(context)
+                        }
+                    }
+                }
+            },
+        )
     }
 
     fun onPlayPauseClick() {

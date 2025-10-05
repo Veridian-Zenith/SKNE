@@ -12,7 +12,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -25,7 +28,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,13 +35,13 @@ import coil.compose.AsyncImage
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
-import com.vz.skne.ui.components.HomeScreen
+import com.vz.skne.data.repository.SpotifyRepository
+import com.vz.skne.network.RetrofitClient
 import com.vz.skne.ui.components.ArtistScreen
+import com.vz.skne.ui.components.HomeScreen
 import com.vz.skne.ui.components.LikedSongsScreen
 import com.vz.skne.ui.components.LoginScreen
 import com.vz.skne.ui.theme.桜の雨Theme
-import com.vz.skne.data.repository.SpotifyRepository
-import com.vz.skne.network.RetrofitClient
 
 // Navigation Routes
 object AppRoutes {
@@ -74,7 +76,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = startDestination,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     ) {
                         composable(AppRoutes.LOGIN_SCREEN) {
                             LoginScreen(
@@ -83,9 +85,9 @@ class MainActivity : ComponentActivity() {
                                     AuthorizationClient.openLoginActivity(
                                         this@MainActivity,
                                         SPOTIFY_AUTH_REQUEST_CODE,
-                                        request
+                                        request,
                                     )
-                                }
+                                },
                             )
                         }
                         composable(AppRoutes.HOME_SCREEN) {
@@ -116,7 +118,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 isConnecting = isConnecting,
                                 connectionError = connectionError,
-                                onRetryConnection = { viewModel.retryConnection(context) }
+                                onRetryConnection = { viewModel.retryConnection(context) },
                             )
                         }
                         composable(AppRoutes.LIKED_SONGS_SCREEN) {
@@ -127,13 +129,13 @@ class MainActivity : ComponentActivity() {
                             enterTransition = { slideInHorizontally(animationSpec = tween(700), initialOffsetX = { it }) + fadeIn(animationSpec = tween(700)) },
                             exitTransition = { slideOutHorizontally(animationSpec = tween(700), targetOffsetX = { -it }) + fadeOut(animationSpec = tween(700)) },
                             popEnterTransition = { slideInHorizontally(animationSpec = tween(700), initialOffsetX = { -it }) + fadeIn(animationSpec = tween(700)) },
-                            popExitTransition = { slideOutHorizontally(animationSpec = tween(700), targetOffsetX = { it }) + fadeOut(animationSpec = tween(700)) }
+                            popExitTransition = { slideOutHorizontally(animationSpec = tween(700), targetOffsetX = { it }) + fadeOut(animationSpec = tween(700)) },
                         ) { backStackEntry ->
                             val artistId = backStackEntry.arguments?.getString(AppRoutes.ARTIST_ID_ARG)
                             ArtistScreen(
                                 artistId = artistId,
                                 navController = navController,
-                                spotifyRepository = viewModel.spotifyRepository
+                                spotifyRepository = viewModel.spotifyRepository,
                             )
                         }
                     }
@@ -147,7 +149,7 @@ class MainActivity : ComponentActivity() {
         if (requestCode == SPOTIFY_AUTH_REQUEST_CODE) {
             val response = AuthorizationClient.getResponse(resultCode, intent)
             when (response.type) {
-                AuthorizationResponse.Type.TOKEN -> viewModel.onLoginResult(response.accessToken)
+                AuthorizationResponse.Type.TOKEN -> response.accessToken?.let { viewModel.onLoginResult(it) }
                 AuthorizationResponse.Type.ERROR -> {
                     // Handle error
                 }
@@ -162,7 +164,7 @@ class MainActivity : ComponentActivity() {
         val builder = AuthorizationRequest.Builder(
             BuildConfig.SPOTIFY_CLIENT_ID,
             AuthorizationResponse.Type.TOKEN,
-            BuildConfig.SPOTIFY_REDIRECT_URI
+            BuildConfig.SPOTIFY_REDIRECT_URI,
         )
         builder.setScopes(arrayOf("user-read-private", "user-library-read", "playlist-read-private"))
         return builder.build()
@@ -178,13 +180,13 @@ fun AlbumArt(uri: String?) {
             modifier = Modifier
                 .size(180.dp)
                 .clip(MaterialTheme.shapes.medium),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
     } ?: run {
         Box(
             modifier = Modifier
                 .size(180.dp)
-                .background(Color.DarkGray, MaterialTheme.shapes.medium)
+                .background(Color.DarkGray, MaterialTheme.shapes.medium),
         )
     }
 }

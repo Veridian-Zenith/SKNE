@@ -20,7 +20,7 @@ interface SpotifyApiService {
     suspend fun getArtistTopTracks(
         @Path("id") artistId: String,
         @Header("Authorization") token: String,
-        @Query("market") market: String = "US" // Specify market for track results
+        @Query("market") market: String = "US", // Specify market for track results
     ): Response<ArtistTopTracks>
 
     // Get Artist's Albums
@@ -29,13 +29,13 @@ interface SpotifyApiService {
         @Path("id") artistId: String,
         @Header("Authorization") token: String,
         @Query("market") market: String = "US", // Specify market for album results
-        @Query("limit") limit: Int = 20 // Number of albums to retrieve
+        @Query("limit") limit: Int = 20, // Number of albums to retrieve
     ): Response<ArtistAlbums>
 
     // Get User's Liked Songs
     @GET("me/tracks")
     suspend fun getLikedSongs(
         @Header("Authorization") token: String,
-        @Query("limit") limit: Int = 20
+        @Query("limit") limit: Int = 20,
     ): Response<com.vz.skne.data.model.LikedSongsResponse>
 }
